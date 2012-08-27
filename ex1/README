@@ -1,0 +1,104 @@
+ohadcn
+ypinsk48
+
+Ohad Cohen
+
+Yaakov Pinsky
+
+===========================================
+==  README for  Ex1:   file processing tool
+===========================================
+
+===For the end user: basic summary and usage===
+This package contain a file processing tool written in java as an exercise in OOP course.
+to use it just compile it and run:
+java oop.ex1.filescript.MyFileScript <directory to work on> <commands file>
+The commands file must be constructed in the following format:
+Filter: contains rules for files to work on
+Action: what to do with each file
+Order: which file to process first
+
+Each section is preceded by it's name in uppercase letters
+One commands file can have more than one set of these three of actions
+No empty lines accepted.
+
+===code structure===for other programmers===
+
+this code is divided to 5 packages:
+
+    oop.ex1.filescript - contains the main file and a Parser class.
+    oop.ex1.misc - some small methods and structures for the program.
+    oop.ex1.filters - the filters classes and their utilities.
+    oop.ex1.orders - everything that is relevant for the order and sorting of the files.
+    oop.ex1.actions - classes and methods for the actual processing of the files.
+
+each package has a class named factory that creates instances of it's objects
+
+
+==oop.ex1.filescript==
+this is the main package in this script, it has the main method, and the main parser method
+    =oop.ex1.filescript.MyFileScript=
+    the main file of the script
+    
+    =oop.ex1.filescript.Parser=
+    parse string onto commands
+    
+==oop.ex1.misc==
+this package has one class and one enum:
+    =oop.ex1.misc.Bool=
+    this enum is used as bbolean, only that it's uses "YES" and "NOT" instead of true and false
+    
+    =oop.ex1.misc.NumCompare=
+    this class has one method to compare numbers, it's return value can be used as of Comparable.compareTo
+    
+==oop.ex1.filters==
+this package has enums and class relevant to filtering files
+classes in this package can be used only by getting them throw the FilterFactory class
+    =oop.ex1.filters.FilterFactory=
+    this static class can make new filters, it has a method that gets strings and make filters out of them
+    (filters are given as objects implementing java.io.FileFilter interface)
+other classes of this package has no interface for outside the package- so not listed here.
+
+to add a new filter you need to register it in Filters enum and update FilterFactory.parseLine()
+for the new filters and how to parse string representations of them
+
+==oop.ex1.orders==
+this package contains code that handle sorting of files by categories,
+the easiest way to use it to construct intance by calling OrderFactory.parse method 
+and then use Arrays.sort with an array of files  and the Comperator<Files> returned by OrderFactory as arguments
+    =oop.ex1.orders.OrderFactory=
+    this is probably the only class you need to know about, it has a method called factory
+    that can make Comperator<Files> out of Queue<String>.
+if you want to implement more kinds of files sorting/ordering you need to register them in the Orders enum
+and make OrderFactory able to construct them
+
+==oop.ex1.actions==
+this package contains classes that can process files: copy, set properties or show some info on them
+all you need to do in order to use it is to run ActionFactory.parseActions,
+after that you can run the commands by running Action.commit on each one of them
+    =oop.ex1.actions.ActionFactory=
+    this static class has the main parser for actions, here the words are converted to computerized commands
+
+    =oop.ex1.actions.Action=
+    this interface represent a command, that can be executed by calling <action name>.commit(folder)
+    this Action can be anything that an advanced file processing tool can do
+in case you need to implement more actions just remember to let ActionFactory handle creating them
+in case your new action is order-sensitive don't forget to inherit the OrderSensitive interface
+and implement it's method
+
+===error handling===
+errors can be divided into two parts:
+1)global errors (e,g:first line being a comment, section is missing)
+     those produce IllegalFileFormatException, which inherit StreamCorruptedException.
+2)minor errors:those are created by each section when an illegal expression appear in a section,
+     each package has it's own error for that,
+     most of this errors are subclasses of ParseException as nearest java exception 
+of course some libraries calls may use their own exceptions
+
+===notes===
+1)enums names - following the request for filters/actions/orders to be kept lowercase we used to name 
+    their enums values lowercase, to keep the code as easy and efficient as possible
+    
+addition of Filters, Orders and Filters is described separately for each section, in the section description.
+
+handling multiple sections in the command file is achieved by saving all actions with their filters in a list before running them

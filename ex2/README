@@ -1,0 +1,209 @@
+ohadcn
+
+=================
+===basic usage===
+=================
+this program is a simple s-java compiler.
+this compiler can't compile and link your code but just tell you Whether your code is legal or not.
+to use it open a terminal and run the program with a file name as parameter
+java oop.ex2.main.Sjava <filepath.filename.sjava>
+the output of this program is quiet simple, only the return value has meaning:
+0 means your code is legal, while 1 means your code has problems in it
+2 means input/ output errors: file doesn't exist or you have no permissions of reading it.
+
+
+
+============
+===design===
+============
+
+==packages==
+
+the code is divided to three packages:
+	=oop.ex2.main=
+	this package has the body of the program.
+
+	=oop.ex2.compiler=
+	this package contains the compiler itself, most of the s-java code processing is done within this package
+
+	=oop.ex2.misc=
+	this package contains helper classes.
+	those classes can easily be ported to use in another programs, some of them may be seen in a library
+
+
+==classes==
+
+	=oop.ex2.main.Sjava=
+	this class has the main() method witch called as the program starts,
+	this method call compiler to know if the provided S-java code is legal and than do the appropriate action
+	
+	=oop.ex2.main.Errors=
+	this class is called on error, it has methods for different kinds of errors: it just print the given error
+	message and exits the program with the relevant exit value.
+	
+	=oop.ex2.misc.DualMap=
+	this class is a linked list of maps, it used to handle members scopes
+	
+	=oop.ex2.misc.FileRead=
+	this class is a enhanced scanner that read a file and passes over comments, trim extra spaces and more,
+	
+	=oop.ex2.compiler.Compiler=
+	this class is the main compiling unit, it checks for the legality of the code and passes success or failing codes
+	
+	=oop.ex2.compiler.Globals=
+	a class that get global members and methods from a file to a Map.
+	
+	=oop.ex2.compiler.DeepTest=
+	a class that does a deep test of the file.
+	the class Globals also do a little test of the file, but it focused on another kinds of errors.
+	
+	=oop.ex2.compiler.Member=
+	this class represent a member: method or variable.
+	i united them to one class as i found them as same kinds of thing
+	
+	=oop.ex2.compiler.MethodCall=
+	a class that analyze method calls for legality and returns value
+	
+	those two are enums:
+	=oop.ex2.compiler.ExpressionType=
+	this enum analyze lines of code and detect what kind of expression lie in it: method/block declaration,
+	command etc.
+	
+	=oop.ex2.compiler.Types=
+	an enum that analyze types of expressions, to have a valid boolean/int/string etc. formats
+	
+	
+	
+==exceptions==
+i found the exception mechanism useful, as it can pass more information in a simple format;
+i can pass the kind of the error and an error message to the calling method, in a quick and simple way.
+	
+	=oop.ex2.compiler.SjavaError=
+	holder exception for invalid code, this exception is used as is only when an error can't be classified
+	and all the other exceptions inherit it
+	
+	=oop.ex2.compiler.IlegalMemberUseException=
+	this is an exception that thrown each time a use of a member is not valid
+	
+	=oop.ex2.compiler.TypeConversionException=
+	this exception is thrown when trying to put a member where it's not belongs
+	
+	=oop.ex2.compiler.IlegalReturnType=
+	exception thrown when a method is trying to return a value of different type than it's own
+	
+	=oop.ex2.compiler.MemberNotInitializedException=
+	exception that thrown when trying to use uninitialized variable
+	
+	=oop.ex2.compiler.MemberDontExistExcetion=
+	when trying to use a member but this member does not exist at this scope
+	
+	=oop.ex2.compiler.MemberDeclarationException=
+	holder exception for all declaration errors
+	
+	=oop.ex2.compiler.UnknownTypeException=
+	trying to declare a member with an unknown type
+	
+	=oop.ex2.compiler.NestedMethodDeclatationException=
+	when trying to declare a method inside another and not at global scope
+	
+	=oop.ex2.compiler.IlegalNameException=
+	when name of a variable or method is not legal.
+	
+	=oop.ex2.compiler.DoubledMemberException=
+	extends IlegalNameException and thrown when trying to declare two members with the same name
+	
+	=oop.ex2.compiler.FinalMemberNoValueException=
+	thrown when trying to declare a final member without giving it a value
+	
+	=oop.ex2.compiler.BracketException=
+	thrown when bracket are not closed or opened properly
+	
+	=oop.ex2.compiler.UnreachableCodeException=
+	occurred when a code appears after the return statement of a method.
+	
+	=oop.ex2.compiler.IlegalCommentException=
+	occur when a comment is not written properly in the code
+	
+=exceptions hierarchy=
+
+SjavaError
+----BracketException
+----UnreachableCodeException
+----IlegalCommentException
+----IlegalMemberUseException
+--------MemberNotInitializedException
+--------MemberDontExistExcetion
+--------TypeConversionException
+------------IlegalReturnType
+----MemberDeclarationException
+--------UnknownTypeException
+--------NestedMethodDeclatationException
+--------IlegalNameException
+--------DoubledMemberException
+--------FinalMemberNoValueException
+
+
+
+==========
+===TODO===
+==========
+some planned features to add to s-java language:
+
+	=adding more variables types=
+	this only file you need to update to achieve that is oop/ex2/compiler/Types.java,
+	need to add a member to the enum by the name of your new type, a method that check the legality
+	of an String to that type, update isType method and TYPES final String by the new type.
+
+
+	=import support=
+	to support import mechanism, the only thing you need to do is run Globals.getGlobals on the
+	imported file, and than update your map of known members by the existence of them, two lines for the most.
+
+
+=================
+===other stuff===
+=================
+	
+	=regular expressions=
+	i have asked to supply two examples of regular expressions from my code, so here they are:
+	1)ExpressionType.MEMBER_DECLARE="^("+FINAL+" )?"+Types.TYPES+NAME+"( ?=.*)?;$";
+	this regular expression demonstrate flexibility of expressions: in this regular expression i combined
+	three other expressions.
+	declaration of a member is consists of three or four parts:
+	the first, which is optional is the word "final" witch means that the member is read only
+	(this is the reason for the question mark after the final)
+	
+	the second part of a member declaration is it's type, one of those who appears in Types.TYPES
+	
+	the most important part of a declaration is the name of the variable,
+	who needs to follow the rules of another expression - NAME
+	
+	one final and also optional part is the initial value, this value can appear after the "=" character,
+	and can have many kinds, for that reason it appears as .* which support any combination of characters,
+	the validity of them is done latter by other methods and tools.
+	
+	2)second nice regular expression i used, has the ability to isolate the value given to a variable,
+	line.replaceAll(".*= *(.*);$", "$1")
+	this line tells the computer to isolate the expression after the "=" character and before the ";",
+	i need that information to test the type of that expression and decide it's legality.
+	
+	
+	=========
+	==bonus==
+	=========
+	i added support for method overloading in my s-java implementation.
+	supporting of overloading methods is done simply by accessing methods by signature
+	not only by names. method signature is consists of the method name and comma separated list of it's
+	parameters, so given the following declaration
+	int myMethod(boolean a,char b){
+	it's signature is:
+	myMethod(boolean,char)
+	but still two method with the same parameters are not allowed, so
+	int myMethod(int g)
+	and
+	boolean myMethod(int k)
+	do have the same signature, so this overloading is not allowed
+	
+	
+	i wrote some testers to that feature, see the files in /tests directory
+	

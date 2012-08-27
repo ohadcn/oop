@@ -1,0 +1,8 @@
+//same name, same return value different parameters
+int a(char a){
+	return 4;
+}
+
+int a(boolean ol){
+	return a('w');
+}

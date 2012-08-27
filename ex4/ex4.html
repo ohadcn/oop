@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html >
+	<head>
+		<title>OOP, exercise 4 - Sequence Finder & score generator</title>
+		<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+		<script src="setInput.js" type="text/javascript"></script>
+		<script src="string.js" type="text/javascript"></script>
+		<script src="element.js" type="text/javascript"></script>
+		<script src="seqFinder.js" type="text/javascript"></script>
+		<script src="inputValidator.js" type="text/javascript"></script>
+		<link rel="stylesheet" type="text/css" href="style.css" />
+	</head>
+
+	<body>
+		<header>
+			<h1>Sequence Finder &amp; score generator - by Ohad Cohen</h1>
+		</header>
+		
+		<form action="findSequences()">
+			<h4>Input Section</h4>
+			<label for="inputSeq">Query sequence:</label><br>
+			<textarea tabindex="1" cols="103" rows="10" id="inputSeq"></textarea>
+			<br><br>
+			
+			<label for="junctionPos">Junction position within query sequence:</label>
+			<input id="junctionPos" type="text" size="3"><br><br>
+			<table>
+				<thead>
+					<tr>
+						<th>silencers:</th>				
+						<th>enhancers:</th>
+					</tr>				
+				</thead>
+				
+				<tbody>
+					<tr>
+						<td>
+						 	<label for="enhancerList">List of enhancers:</label><br>
+							<textarea cols="50" rows="10" id="enhancerList"></textarea><br>
+
+							<label for="enhancerScore">Enhancers Score:</label>
+							<input id="enhancerScore" size="5" type="text" ><br>
+						</td>
+						
+						<td>
+							<label for="silencerList">List of silencers:</label><br>
+							<textarea cols="50" rows="10" id="silencerList"></textarea><br>
+
+							<label for="silencerScore">Silencers Score:</label>
+							<input id="silencerScore" size="5" type="text" ><br>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			
+			<br>			
+
+			<h4>Additional/optional input sections:</h4>
+			<table>
+				<tbody>
+					<tr>
+						<th>Design features of output:</th>
+						<th>Sequences to highlight:</th>					
+					</tr>
+					<tr>
+						<td>
+							<label for="enhancersColor">Enhancers color:</label>						
+							<select id="enhancersColor">
+								<option id="eColor1" value="green">Green</option>
+								<option id="eColor2" value="blue">Blue</option>
+								<option id="eColor3" value="red">Red</option>
+							</select>
+							
+							<br>
+							<label for="silencersColor">Silencers color:</label>
+							<select id="silencersColor" >
+								<option id="sColor1" value="violet">Violet</option>	
+								<option id="sColor2" value="yellow">Yellow</option>
+								<option id="sColor3" value="brown">Brown</option>							
+							</select>
+							<br><br><br>
+						</td>
+
+						<td>
+							<input id="onlyEnhancers"  name="mark" type="radio" value="enhancers" >
+							<label for="onlyEnhancers">mark only enhancers:</label><br>
+
+							<input id="onlySilencers" name="mark" type="radio" value="silencers" >
+							<label for="onlySilencers">mark only silencers:</label><br>
+	
+							<input id="bothOptions" name="mark" type="radio" value="both" checked="checked">
+							<label for="bothOptions">mark both enhancers and silencers:</label><br>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<input id="reverse" type="checkbox" >
+			<label for="reverse">Apply search also for the reverse sequence</label>
+						
+			<br><br>
+			
+			<input id="searchButton" value="Search and compute" type="button"  onclick="findSequences()" >
+			<input id="exampleButton" value="Set example input" onclick="setExampleParameters()" type="button" >
+			<input id="validationButton" value="Validate input" onclick="validateInput()" type="button" >
+			<input id="resetButton" value="Reset" type="reset" ><br>
+		</form>
+	
+		<!-- the errors section -->
+		<div id="errorsSection" class="output">
+			<hr>
+			<h4>Errors Section:</h4>
+			<textarea id="errors" disabled="disabled" cols="85" rows="1"></textarea>
+		</div>
+
+		<!-- the result section -->
+		<div id="results" class="output">
+			<hr>
+			<h4>Result Section:</h4>
+			<span id="emptyResults" style="text-align: center;">
+				The results will appear here after clicking on the 'search and compute' button.
+			</span>
+			
+			<table style="display:none;" id="out" class="reverseIsInactive">
+				<thead>
+					<tr id="tableTitles">
+						<th></th>
+						<th>sub-sequence:</th>
+						<th>results for the query sequence:</th>
+						<th class="reversed">results for the reversed query:</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr id="enhancersLine">
+						<th id="enhancersTitle">enhancers:</th>
+						<td id="enhancersSeqs"></td>
+						<td id="enhancersTable"></td>
+						<td id="revEnhancersTable" class="reversed"></td>
+					</tr>
+					
+					<tr id="silencersLine">
+						<th id="silencersTitle">silencers:</th>
+						<td id="silencersSeqs"></td>
+						<td id="silencersTable"></td>	
+						<td id="revSilencersTable" class="reversed"></td>					
+					</tr>
+					
+					<tr>
+						<th colspan="2">output for the query sequence:</th>	
+						<td id="markedSequence"></td>			
+						<td id="revMarkedSequence" class="reversed"></td>			
+					</tr>
+					<tr>
+						<th colspan="2">Total Score:</th>	
+						<td>
+
+							<textarea id="totalScore" disabled="disabled" rows="1" cols="5"></textarea>						
+						</td>			
+						<td class="reversed">
+
+							<textarea id="revTotalScore" disabled="disabled" rows="1" cols="5"></textarea>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<br>
+		<footer>
+
+			<em> page built by <a
+href="mailto:ohadcn@cs.huji.ac.il">Ohad Cohen</a> ohadcn as an
+			 exercise in OOP course</em>
+		</footer>
+	</body>
+</html>

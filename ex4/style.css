@@ -1,0 +1,69 @@
+.output textarea{
+	color: inherit;
+	background-color:inherit;
+	border:0;
+	resize:none;
+}
+
+body{
+	background-color: #deffed;
+	color: mediumorchid;
+}
+
+form,.output{
+	position: relative;
+	left: 15%;
+	width: 1000px;
+}
+
+#errors{
+	color:red;
+}
+	
+textarea,input[type=text]{
+	resize:none;
+	background-color: #efffef;
+	border:5px solid #deffef;
+	color: #012210;
+}
+
+th{
+	text-align:center;
+	overflow: hidden;
+}
+
+form label{
+	color: blueviolet;
+}
+
+#out th{
+	border: 3px inset grey;
+}
+
+#out td, #out tr{
+	border: 2px ridge blue;
+	overflow: hidden;	
+}
+
+h4{
+	text-shadow: 0.7px 0.5px 0.3px #feddef;
+	text-decoration: underline;	
+	color: #123321;
+}
+
+#out{
+	text-align:center;
+}
+
+footer{
+	text-align: center;
+	font-size: 70%;
+	font-family: Georgia;
+	color: aqua;
+	background-color: #deffff;
+}
+
+header{
+	text-align: center;
+	background-color: #defedc;
+}

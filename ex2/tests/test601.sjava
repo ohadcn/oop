@@ -1,0 +1,8 @@
+//same name and parameters, different return value
+int foo(int g){
+	return g;
+}
+
+boolean foo(int goo){
+	return 7;
+}

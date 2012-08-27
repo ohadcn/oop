@@ -1,0 +1,19 @@
+//complex test
+char main(){
+	return '1';
+}
+
+char main(int g7){
+	return main();
+}
+
+boolean main(char g7){
+	return true;
+}
+
+String main(char d,int a){
+	if(main(d)){
+		return "chachacha";
+	}
+	return main('4',6);
+}

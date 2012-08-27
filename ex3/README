@@ -1,0 +1,144 @@
+ohadcn
+
+=================
+===basic usage===
+=================
+
+==Introduction==
+Since their “invention” in 1913, crosswords became very popular; you can find them in newspapers and in
+different games. They are used to test vocabulary, language knowledge and thematic skills.
+
+==goal==
+this program is a crossword creation program, for a given glossary of term/definition pairs and a
+structure. this program attempt to create a crossword that fits it into the given structure and includes
+some or all of the terms given in the glossary.
+
+Moreover, there is a time limitation;
+within a given time, this program searches for the “best” crossword and return the “best” crossword found so far,
+for the given data. The best crossword is defined as a valid crossword containing a maximal number of letters in it;
+number of letters in a crossword is the sum of lengths of all (possibly overlapping) words inserted into the crossword.
+
+==execution==
+This program receive three input parameters and will run as follows:
+	java oop.ex3.gui.CrosswordViewer <structure file> <definitions file> <TimeOut in Ms>
+
+=the structure file=
+Each line in this file represents a row of the crossword structure (all lines are of the same length). Each line
+contains a combination of ‘_’ and ‘#’ signs:
+    ‘_’ represents an empty space (can, but doesn’t have to, be filled with a letter of some entry).
+    ‘#’ represents structure space that cannot be filled with letters.
+
+=the word definitions file=
+Contains a sequence of word definitions in the following format:
+Each line contains a term and its definition, separated by “:”.
+
+
+============
+===design===
+============
+
+===packages===
+
+the program is divided to four packages:
+==oop.ex3.gui==
+has one class, i didn't touch that class, the class supplied by OOP course stuff is the one here
+
+==oop.ex3.misc==
+has a class and an interface
+	=oop.ex3.Interruptible= interface to indicate that the class dids can be interuptable, to tell it stop it's doing
+	=oop.ex3.Stopper= this class implements a stopper that can stop a class that implements Interuptable interface after a
+	given time
+	
+==oop.ex3.search==
+
+has three interfaces and one class.
+the interfaces were taken from OOP course stuff, so not described here.
+	=oop.ex3.search.MyDepthFirstSearch= a class that scans available moves on SearchBoardNode using the DFS algorithm, in a
+	given time.
+
+==oop.ex3.crossword==
+
+the interfaces in this package, as the classes MyCrosswordGlossary and MyCrosswordStructure were taken from OOP course
+stuff, so not documented here
+
+	=oop.ex3.MyCrossword= a class that can holds the state of a crossword board, this class has an inner class:
+	-oop.ex3.MyCrossword.MovesIterator- an Iterator object that iterates over all the available positions to put a word
+	on a board.
+	this class can only be used by MyCrossword class, so it implemented as nested class.
+	
+	=oop.ex3.MyCrosswordPosition= a class that holds the position of a term on a crossword-board
+	
+	=oop.ex3.MyCrosswordEntry= a class that holds an entry of a crossword, entry is a term, definition and position.
+	
+================
+===algorithms===
+================
+
+==optimizations==
+besides the required optimization algorithms, described in the exercise doc, i found that iterating over all the words in
+every move is unnecessary and not efficient, so in every move i check only one word at a move.
+
+==flexibility==
+
+=change board scoring calculation=
+the scoring algorithm used in this exercise is very simple, so there is no reason to put it in a different method or class.
+to change the scoring algorithm you need to implement it (of course) and to edit the following methods:
+isBestSolution: replace allTermsLength call with the relevant value
+doMove and undoMove: change the value given to qualityBound and quality to reflect the changes in the scoring algorithm
+the change to qualityBound reflect the changes to the maximum available score after giving up a word
+
+=change the moves ordering algorithm=
+
+such kind of changes can be divided to three kinds of changes:
+1)order of iterating over words:
+the method updateTerms() handle words order, to change the order words are iterated you need to change the
+implementation of the anonymous class Comparator<String>() to reflect the changes in the word ordering algorithm.
+
+2)global order of positions:
+if you want to change the order you test all the terms in the glossary, you can edit the method updateAvaliablePositions
+changes to this method cause another ordering and iterating over all the words in the glossary
+
+3)changes to the order of the positions that depends on the word or the position of other words or the word itself:
+the constructor of MyCrossword.MovesIterator() can handle it, you can implement any position ordering mechanism
+you want in that constructor
+
+
+==using of data structures==
+
+=classes usage in MyDepthFirstSearch=
+the interesting structure in this class is the usage of Stopper, the stopper object gets an object implementing
+Interruptible and interrupt it after a given time, interrupting is done by calling the method timeOut() of the interrupted
+class.
+
+MyDepthFirstSearch use Stopper to handle the timeOut demand, when search() is called it creates a new Stopper
+and tell it to interrupt search after timeOut milliseconds, when Stopper calls timeOut() the istimeOut flag is raised
+and tell the search() method to stop it's work.
+
+=data structures in MyCrossword=
+
+MyCrossword class use a lot of data, i choose to use big cache to fast the search and iterating process, even in price
+of big memory usage and long one-time building of those structures.
+
+the glossary and the structure are kept as is; no changes are made to them.
+
+the entries are the moves that already done and are saved in a map<String,CrosswordEntry> that connect each term to
+it's position on the board
+
+beside this it keeps an array of all the terms in the glossary, ordered optimized for quick iterating over the glossary.
+
+in addition MyCrossword object keep an two dimensional array that holds the available positions to put any length of a
+word, this quicken the search by saving the need to calculate available places to place words
+
+=complexity of DFS algorithm=
+
+DFS complexity is depends linearly on the vertices and edges in the graph, this implementations iterates over the edges
+in the graph so the complexity of it depends on the possible moves.
+the possible moves for each word is all the places to place it: for each cell in the structure exist two places, one
+vertical and one horizontal, so the let mark the number of the words as W, the height of the board as Y and it's width as
+X, the algorithm iterates O((2*X*Y)^w) times.
+deeper analysis can indicate that every level in the DFS do some commands and calls, most of them has constant
+time except one: next(), this method iterate over all the words already exist in the graph and test the legality of
+letting that word to lay near them, this also worth O(W), in estimation that String.regionMatch() needs time as the length
+of the string, testing moves may become O(W*wordLength).
+so the running time of search() is O(w*L*(2*X*Y)^w), when X - width of the board, Y - height of the board, W - number of
+words in the glossary, L - length of the longest word in the glossary.

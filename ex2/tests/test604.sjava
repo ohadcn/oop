@@ -1,0 +1,8 @@
+//different parameters
+int a(int g){
+	return g;
+}
+
+int a(char g){
+	return 4;
+}
